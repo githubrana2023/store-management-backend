@@ -5,13 +5,13 @@ import { sign } from "hono/jwt";
 type AccessTokenType = 'access'
 type RefreshTokenType = 'refresh'
 
-type AccessTokenPayload = {
+export type AccessTokenPayload = {
     sub: string;
     platformRole: PlatformUserRoleType;
     type: AccessTokenType
 }
 
-type RefreshTokenPayload = {
+export type RefreshTokenPayload = {
     sub: string;
     platformRole: PlatformUserRoleType;
     type: RefreshTokenType

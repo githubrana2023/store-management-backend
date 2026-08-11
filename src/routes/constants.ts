@@ -1,6 +1,6 @@
 export const publicRoutes = [
     "/",
-    "/auth/login",
-    "/auth/register",
-    "/auth/forgot-password",
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/forgot-password",
 ]

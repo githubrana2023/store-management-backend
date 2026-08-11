@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import app from "./app.js";
 import { config } from "./config/evn.js";
+import { seedDatabase } from "./drizzle/seed-platform-admin.js";
 
 
 
@@ -8,7 +9,7 @@ const bootstrap = async () => {
     try {
         console.log("Starting application...");
 
-        // await seedDatabase();
+        await seedDatabase();
 
         serve({
             fetch: app.fetch,
