@@ -1,9 +1,7 @@
-// ### Phase 1 — Drizzle PostgreSQL Schema
 
+import { relations } from "drizzle-orm";
 import {
-    boolean,
     index,
-    integer,
     pgEnum,
     pgTable,
     text,
@@ -11,7 +9,6 @@ import {
     uniqueIndex,
     uuid,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 import { storeMembersTable } from "./store-members-table.js";
 
 /* =========================================================
@@ -23,7 +20,7 @@ export const PLATFORM_ROLE = [
     "ADMIN",
 ] as const
 
-export const USER_STATUS = [
+export const STORE_STATUS = [
     "ACTIVE",
     "INACTIVE",
     "SUSPENDED",
@@ -34,33 +31,26 @@ export const USER_STATUS = [
    ENUMS
    ========================================================= */
 
-export const platformRoleEnum = pgEnum("platform_role", PLATFORM_ROLE);
-
-export const userStatusEnum = pgEnum("user_status", USER_STATUS);
-
+export const storeStatusEnum = pgEnum("store_status", STORE_STATUS);
 
 /* =========================================================
-   USERS
+   STORES
    ========================================================= */
 
-export const usersTable = pgTable(
-    "users",
+export const storesTable = pgTable(
+    "stores",
     {
         id: uuid("id").defaultRandom().primaryKey(),
 
         name: text("name").notNull(),
 
-        email: text("email").unique(),
+        slug: text("slug").notNull(),
 
-        phone: text("phone").unique().notNull(),
+        phone: text("phone"),
 
-        passwordHash: text("password_hash").notNull(),
+        address: text("address"),
 
-        platformRole: platformRoleEnum("platform_role")
-            .notNull()
-            .default("USER"),
-
-        status: userStatusEnum("status")
+        status: storeStatusEnum("status")
             .notNull()
             .default("ACTIVE"),
 
@@ -78,19 +68,17 @@ export const usersTable = pgTable(
             .$onUpdate(() => new Date()),
     },
     (table) => [
-        index("users_platform_role_idx").on(table.platformRole),
+        uniqueIndex("stores_slug_unique_idx").on(table.slug),
 
-        index("users_status_idx").on(table.status),
+        index("stores_status_idx").on(table.status),
     ],
 );
-
 
 /* =========================================================
    RELATIONS
    ========================================================= */
 
 
-
-export const usersTableRelations = relations(usersTable, ({ many }) => ({
-    storeMemberships: many(storeMembersTable),
+export const storesTableRelations = relations(storesTable, ({ many }) => ({
+    members: many(storeMembersTable),
 }));
