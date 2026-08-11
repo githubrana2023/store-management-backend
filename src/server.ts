@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import app from "./app.js";
+import { config } from "./config/evn.js";
 
 
 
@@ -11,14 +12,11 @@ const bootstrap = async () => {
 
         serve({
             fetch: app.fetch,
-            port: Number(
-                process.env.PORT ?? 3000,
-            ),
+            port: config.port,
         });
 
         console.log(
-            `Server running on port ${process.env.PORT ?? 3000
-            }`,
+            `Server running on port ${config.port}`,
         );
     } catch (error) {
         console.error(

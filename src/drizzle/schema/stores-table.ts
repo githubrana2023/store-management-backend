@@ -13,13 +13,10 @@ import { storeMembersTable } from "./store-members-table.js";
 import { storeRolesTable } from "./store-role-table.js";
 
 /* =========================================================
-   ENUMS CONSTANTS
-   ========================================================= */
+   !ENUMS CONSTANTS
+   ========================================================= 
+   */
 
-export const PLATFORM_ROLE = [
-    "USER",
-    "ADMIN",
-] as const
 
 export const STORE_STATUS = [
     "ACTIVE",
