@@ -10,6 +10,7 @@ import {
     uuid,
 } from "drizzle-orm/pg-core";
 import { storeMembersTable } from "./store-members-table.js";
+import { storeRolesTable } from "./store-role-table.js";
 
 /* =========================================================
    ENUMS CONSTANTS
@@ -81,4 +82,5 @@ export const storesTable = pgTable(
 
 export const storesTableRelations = relations(storesTable, ({ many }) => ({
     members: many(storeMembersTable),
+    roles: many(storeRolesTable),
 }));

@@ -11,6 +11,7 @@ import {
 import { storesTable } from "./stores-table.js";
 import { usersTable } from "./users-tables.js";
 import { relations } from "drizzle-orm";
+import { storeRolesTable } from "./store-role-table.js";
 
 /* =========================================================
    ENUMS CONSTANTS
@@ -24,9 +25,6 @@ export const STORE_MEMBER_STATUS = [
 
 export const STORE_MEMBER_ROLE = [
     "OWNER",
-    "ADMIN",
-    "MANAGER",
-    "CASHIER",
     "STAFF",
 ] as const
 
@@ -35,7 +33,6 @@ export const STORE_MEMBER_ROLE = [
    ENUMS
    ========================================================= */
 
-export const storeMemberRoleEnum = pgEnum("store_member_role", STORE_MEMBER_ROLE);
 
 export const storeMemberStatusEnum = pgEnum("store_member_status", STORE_MEMBER_STATUS);
 
@@ -61,10 +58,7 @@ export const storeMembersTable = pgTable(
                 onDelete: "cascade",
                 onUpdate: "cascade",
             }),
-
-        role: storeMemberRoleEnum("role")
-            .notNull()
-            .default("STAFF"),
+        roleId: uuid("role_id").notNull().references(() => storeRolesTable.id, { onDelete: "restrict", onUpdate: "cascade", }),
 
         status: storeMemberStatusEnum("status")
             .notNull()
@@ -99,8 +93,6 @@ export const storeMembersTable = pgTable(
 
         index("store_members_user_id_idx").on(table.userId),
 
-        index("store_members_role_idx").on(table.role),
-
         index("store_members_status_idx").on(table.status),
     ],
 );
@@ -124,5 +116,6 @@ export const storeMembersTableRelations = relations(
             fields: [storeMembersTable.storeId],
             references: [storesTable.id],
         }),
+        role: one(storeRolesTable, { fields: [storeMembersTable.roleId], references: [storeRolesTable.id], }),
     }),
 );
