@@ -2,9 +2,28 @@ import bcrypt from "bcryptjs"
 import { db } from "./db.js"
 import { usersTable } from "./schema/users-tables.js"
 import { config } from "@/config/evn.js"
+import { STORE_PERMISSIONS } from "@/modules/stores/store-constants.js"
+import { storePermissionsTable } from "./schema/store-permission-table.js"
 
 
-export const seedDatabase = async () => {
+const seedPermission = async () => {
+    console.log('Seeding Permission...')
+    for (const permission of STORE_PERMISSIONS) {
+        const existPermission = await db.query.storePermissionsTable.findFirst({
+            where(storePermissionTable, { and, eq }) {
+                return and(
+                    eq(storePermissionTable.action, permission.action),
+                    eq(storePermissionTable.resource, permission.resource),
+                )
+            }
+        })
+        if (existPermission) return
+        await db.insert(storePermissionsTable).values(permission)
+    }
+    console.log('Seeding Permission Completed...')
+}
+
+const seedSuperAdmin = async () => {
     console.log('Seeding admin...')
     const salt = await bcrypt.genSalt(10)
     const superAdminEmail = 'rtrana2023@gmail.com'
@@ -35,4 +54,10 @@ export const seedDatabase = async () => {
     })
 
     console.log('Seeding admin completed')
+}
+
+
+export const seedDatabase = async () => {
+    await seedSuperAdmin()
+    await seedPermission()
 }
