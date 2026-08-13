@@ -5,7 +5,14 @@ type TokenPayload = (AccessTokenPayload | RefreshTokenPayload)
 
 declare module 'hono' {
     interface ContextVariableMap {
-        jwtPayload: JWTPayload & (AccessTokenPayload | RefreshTokenPayload)
-        authUser: JWTPayload & (AccessTokenPayload | RefreshTokenPayload)
+        jwtPayload: JWTPayload & (AccessTokenPayload | RefreshTokenPayload);
+        authUser: JWTPayload & (AccessTokenPayload | RefreshTokenPayload);
+        storeMember: {
+            id: string;
+            status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+            storeId: string;
+            userId: string;
+            roleId: string;
+        }
     }
 }

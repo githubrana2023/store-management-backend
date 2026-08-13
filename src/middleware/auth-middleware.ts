@@ -22,7 +22,7 @@ export const authRequired = createMiddleware(
             const decoded = await verify(token, config.accessTokenSecret, 'HS256') as (JWTPayload & AccessTokenPayload)
             if (decoded.type !== 'access') throw new AppError('Invalid Token', 401, 'INVALID_TOKEN')
             c.set('authUser', decoded)
-            await next()
+            return await next()
         } catch (error) {
             if (error instanceof AppError) throw error;
             throw new AppError('Invalid Token', 401, 'INVALID_TOKEN', error)

@@ -1,4 +1,4 @@
-import { pgTable, uuid, timestamp, uniqueIndex, index, text } from "drizzle-orm/pg-core";
+import { pgTable, uuid, timestamp, uniqueIndex, index, text, boolean } from "drizzle-orm/pg-core";
 import { storeRolesTable } from "./store-role-table.js";
 import { storePermissionsTable } from "./store-permission-table.js";
 
@@ -9,6 +9,7 @@ export const storeRolePermissionsTable = pgTable("store_role_permissions",
         id: uuid("id").defaultRandom().primaryKey(),
         roleId: uuid("role_id").notNull().references(() => storeRolesTable.id, { onDelete: "cascade", onUpdate: "cascade", }),
         permissionId: uuid("permission_id").notNull().references(() => storePermissionsTable.id, { onDelete: "cascade", onUpdate: "cascade", }),
+        // isActivePermission:boolean('is_active_permission').notNull().default(true),
         createdAt: timestamp("created_at", { withTimezone: true, }).notNull().defaultNow(),
     },
     (table) => [ /** * Prevent duplicate permission assignments. */

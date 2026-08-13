@@ -14,8 +14,8 @@ import { storeRolesTable } from "./store-role-table.js";
             .$onUpdate(() => new Date()),
     },
     (table) => [
-        uniqueIndex("store_permissions_resource_action_unique_idx",)
-            .on(table.resource, table.action,), index("store_permissions_resource_idx")
-                .on(table.resource), index("store_permissions_action_idx").on(table.action),
+        uniqueIndex("store_permissions_resource_action_unique_idx",).on(table.resource, table.action,),
+        index("store_permissions_resource_idx").on(table.resource),
+        index("store_permissions_action_idx").on(table.action),
     ]
 );

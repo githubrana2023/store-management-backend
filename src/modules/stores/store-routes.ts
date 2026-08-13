@@ -10,8 +10,11 @@ import type { storePermissionsTable } from "@/drizzle/schema/store-permission-ta
 import { storeRolePermissionsTable } from "@/drizzle/schema/store-role-permission-table.js";
 import { DEFAULT_STAFF_PERMISSIONS, STORE_PERMISSIONS } from "./store-constants.js";
 import { successResponse } from "@/libs/api-response.js";
+import storeMemberRoutes from "./store-members/store-members-routes.js";
 
 const storeRoutes = new Hono()
+
+storeRoutes.route('/:storeId/members', storeMemberRoutes)
 
 storeRoutes.post('/', async (c) => {
     const authUser = c.get('authUser')
@@ -86,8 +89,8 @@ storeRoutes.post('/', async (c) => {
 
             const staffPermissionIds = storePermissions.filter(permission => {
                 return DEFAULT_STAFF_PERMISSIONS.some(staffPermission => (
-                    staffPermission.action === permission.action &&
-                    staffPermission.resource === permission.resource
+                    (staffPermission.action === permission.action &&
+                        staffPermission.resource === permission.resource)
                 ))
             }).map(p => p.id)
 
@@ -112,5 +115,20 @@ storeRoutes.post('/', async (c) => {
     )
 
 })
+
+
+storeRoutes.get('/', async (c) => {
+    const authUser = c.get('authUser')
+
+    const existStore = await db.query.storesTable.findMany()
+
+    return c.json(
+        successResponse('Store created successfully!', existStore),
+        { status: 201 }
+    )
+
+})
+
+
 
 export default storeRoutes

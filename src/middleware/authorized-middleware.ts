@@ -11,7 +11,6 @@ export const platformAuthorizedMiddleware = createMiddleware(
 
         if (isAdminPath && authUser.platformRole !== 'ADMIN') throw new AppError('Forbidden Access', 403, 'FORBIDDEN_ACCESS')
 
-        await next()
-
+        return await next()
     }
 )
