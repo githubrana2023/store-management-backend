@@ -7,6 +7,7 @@ import { authRequired } from './middleware/auth-middleware.js'
 import { logger } from 'hono/logger'
 import { platformAuthorizedMiddleware } from './middleware/authorized-middleware.js'
 import { db } from './drizzle/db.js'
+import testRoute from './routes/test.js'
 
 const app = new Hono()
 
@@ -19,14 +20,15 @@ app.use('*', authRequired)
 app.route('/api', routes)
 //platform admin routes
 app.route('/admin', platformAdminRoutes)
+app.route('/retrieve', testRoute)
 
-app.get('/api/users', async(c) => {
-const users = await db.query.usersTable.findMany()
+app.get('/api/users', async (c) => {
+  const users = await db.query.usersTable.findMany()
   return c.json(users)
 })
 
 app.get('/', (c) => {
-  
+
   return c.text('Hello Hono!')
 })
 

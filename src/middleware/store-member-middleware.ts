@@ -8,9 +8,7 @@ export const storeMemberMiddleware = createMiddleware(
         const storeId = c.req.param('storeId')
         if (!storeId) throw new AppError('Missing store id', 400, 'MISSING_STORE_ID')
         if (!authUser) throw new AppError('Unauthenticated!', 401, 'UNAUTHENTICATED')
-        if (authUser.platformRole === 'ADMIN') {
-            return await next()
-        }
+
         const store = await db.query.storesTable.findFirst({
             where(storeTable, { eq }) {
                 return eq(

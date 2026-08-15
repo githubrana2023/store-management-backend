@@ -6,11 +6,12 @@ import { verify } from "hono/jwt";
 import type { JWTPayload } from "hono/utils/jwt/types";
 import { publicRoutes } from '@/routes/constants.js';
 
+
 export const authRequired = createMiddleware(
     async (c, next) => {
         const path = c.req.path
 
-        if (publicRoutes.includes(path)) {
+        if (publicRoutes.includes(path) || path.startsWith('/retrieve')) {
             return await next()
         }
 

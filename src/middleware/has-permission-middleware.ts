@@ -2,15 +2,29 @@ import { db } from "@/drizzle/db.js";
 import { AppError } from "@/libs/app-error.js";
 import { createMiddleware } from "hono/factory";
 
+/**
+ * Checks whether the authenticated user has permission to perform
+ * a specific action on a resource within the current store.
+ *
+ * This middleware expects `authRequired` and `storeMemberMiddleware`
+ * to have already executed.
+ *
+ * @param resource - The store resource being accessed (e.g. "products", "sales", "inventory")
+ * @param action - The action being performed (e.g. "create", "view", "update", "delete")
+ *
+ * @throws {AppError} 401 if the user is not authenticated.
+ * @throws {AppError} 400 if the store ID is missing.
+ * @throws {AppError} 500 if store member context is missing.
+ * @throws {AppError} 404 if the store role or permission does not exist.
+ * @throws {AppError} 403 if the user's role does not have the required permission.
+ *
+ * @returns Middleware that calls `next()` when the user is authorized.
+ */
 export const hasPermissionMiddleware = (resource: string, action: string) => createMiddleware(
     async (c, next) => {
         const authUser = c.get('authUser')
         const storeId = c.req.param('storeId')
         const storeMember = c.get('storeMember')
-
-        if (authUser.platformRole === 'ADMIN') {
-            return await next()
-        }
 
         if (!storeId) throw new AppError('Missing store id', 400, 'MISSING_STORE_ID')
         if (!authUser) throw new AppError('Unauthenticated!', 401, 'UNAUTHENTICATED')

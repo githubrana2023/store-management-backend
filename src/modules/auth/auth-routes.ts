@@ -45,7 +45,7 @@ authRoutes.post("/login", async (c) => {
         sub: existUser.id,
         platformRole: existUser.platformRole,
         type: 'access',
-    })
+    }, { expireInMinutes: 60 })
     const refreshToken = await createRefreshToken({
         sub: existUser.id,
         platformRole: existUser.platformRole,

@@ -17,12 +17,14 @@ export type RefreshTokenPayload = {
     type: RefreshTokenType
 }
 
-export const createAccessToken = async (payload: AccessTokenPayload, isTesting?: boolean): Promise<string> => {
+export const createAccessToken = async (payload: AccessTokenPayload, options?: {
+    isTesting?: boolean;
+    expireInMinutes: number
+}): Promise<string> => {
     const now = Math.floor(Date.now() / 1000)
-    const exp = !isTesting ?
+    const exp = (options?.isTesting) ?
         now + 60 * config.accessTokenExpirationMinutes :
-        now + 60 * 5; // 5 min expiration
-
+        now + 60 * (options && options.expireInMinutes ? options.expireInMinutes : 5); // 5 min expiration
 
     const token = await sign({
         ...payload,
