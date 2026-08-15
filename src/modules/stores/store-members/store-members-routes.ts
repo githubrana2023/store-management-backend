@@ -8,9 +8,7 @@ import { storeMemberCreateSchema } from "./store-member-create-schema.js";
 import { successResponse } from "@/libs/api-response.js";
 import { and, eq } from "drizzle-orm";
 import { storeMemberUpdateSchema } from "./store-member-update-schema.js";
-import { ZodError } from "zod";
 import { storeRolesTable } from "@/drizzle/schema/store-role-table.js";
-import type { storesTable } from "@/drizzle/schema/stores-table.js";
 
 const storeMemberRoutes = new Hono()
 
@@ -95,10 +93,19 @@ storeMemberRoutes.patch('/:memberId', hasPermissionMiddleware('members', 'update
         where: (storeMemberTable, { and, eq }) => and(
             eq(storeMemberTable.id, memberId),
             eq(storeMemberTable.storeId, storeMember.storeId)
-        )
+        ),
+        with: {
+            role: {
+                columns: {
+                    name: true
+                }
+            }
+        }
     })
 
     if (!existMembership) throw new AppError(`Member not belongs to current store`, 404, 'NOT_FOUND')
+
+    if (existMembership.role.name.toLowerCase() === 'owner') throw new AppError('Owner role can not be changed!', 400, 'BAD_REQUEST')
 
     let storeRole: typeof storeRolesTable.$inferSelect | undefined = undefined
     if (roleId) {
@@ -110,12 +117,23 @@ storeMemberRoutes.patch('/:memberId', hasPermissionMiddleware('members', 'update
         })
 
         if (!existCurrentStoreRole) throw new AppError(`Store role not found`, 404, 'NOT_FOUND')
+        if (
+            existCurrentStoreRole.name.toLowerCase() === 'owner' &&
+            existCurrentStoreRole.isSystem
+        ) throw new AppError(`Store owner can't be changed`, 400, 'BAD_REQUEST')
         storeRole = existCurrentStoreRole
     }
 
     const [updateMemberRole] = await db.update(storeMembersTable).set({
         roleId: storeRole?.id,
-    }).returning()
+    })
+        .where(
+            and(
+                eq(storeMembersTable.id, existMembership.id),
+                eq(storeMembersTable.userId, existMembership.userId),
+            )
+        )
+        .returning()
     return c.json(
         successResponse('Member updated', updateMemberRole)
     )
@@ -133,11 +151,20 @@ storeMemberRoutes.delete('/:memberId', hasPermissionMiddleware('members', 'delet
                 eq(storeMembers.storeId, storeMember.storeId),
             )
         },
+        with: {
+            role: {
+                columns: {
+                    name: true
+                }
+            }
+        }
     })
 
     if (!memberShip) throw new AppError(
         'Membership not found!', 404, 'NOT_FOUND'
     )
+
+    if (memberShip.role.name.toLowerCase() === 'owner') throw new AppError('Owner can not deleted!', 400, 'BAD_REQUEST')
 
     const [deletedMember] = await db.delete(storeMembersTable).where(
         and(

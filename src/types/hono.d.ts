@@ -13,6 +13,7 @@ declare module 'hono' {
             storeId: string;
             userId: string;
             roleId: string;
+            memberRole: string;
         }
     }
 }

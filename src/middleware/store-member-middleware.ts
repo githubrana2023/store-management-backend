@@ -26,6 +26,13 @@ export const storeMemberMiddleware = createMiddleware(
                     eq(storeMemberTable.userId, authUser.sub)
                 )
             },
+            with: {
+                role: {
+                    columns: {
+                        name: true
+                    }
+                }
+            }
         })
 
         if (!storeMember) throw new AppError('You are not a member of that store', 403, 'FORBIDDEN_ACCESS')
@@ -36,6 +43,7 @@ export const storeMemberMiddleware = createMiddleware(
             userId: storeMember.userId,
             storeId: storeMember.storeId,
             roleId: storeMember.roleId,
+            memberRole: storeMember.role.name,
             status: storeMember.status,
         })
 
