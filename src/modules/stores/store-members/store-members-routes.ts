@@ -67,6 +67,8 @@ storeMemberRoutes.post('/', hasPermissionMiddleware('members', 'create'), async 
         "Role not found", 404, 'NOT_FOUND'
     )
 
+    if (existStoreRole.name.toLowerCase() === 'owner') throw new AppError('Store owner can not be more than one', 400, 'BAD_REQUEST')
+
     const [newMember] = await db.insert(storeMembersTable).values({
         roleId: existStoreRole.id,
         storeId: storeMember.storeId,

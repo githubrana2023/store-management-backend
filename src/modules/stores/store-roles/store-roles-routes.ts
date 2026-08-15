@@ -42,6 +42,7 @@ storeRoleRoutes.post('/', hasPermissionMiddleware('roles', 'create'), async (c) 
         },
     })
 
+
     if (existRole) throw new AppError(
         'Role already exist',
         400,
@@ -145,7 +146,7 @@ storeRoleRoutes.patch('/:roleId', hasPermissionMiddleware('roles', 'update'), as
             },
         })
 
-        if (!roleExistWithSameName) throw new AppError(
+        if (roleExistWithSameName) throw new AppError(
             'Role already exist',
             400,
             'ALREADY_EXIST'
@@ -192,53 +193,55 @@ storeRoleRoutes.patch('/:roleId', hasPermissionMiddleware('roles', 'update'), as
 
 /**
  * --------------------------------------------------------------------------------------
- * UPDATE SINGLE ROLE UNDER STORE 
+ * DELETE SINGLE ROLE UNDER STORE 
  * --------------------------------------------------------------------------------------
  */
 
-storeRoleRoutes.delete('/:roleId', hasPermissionMiddleware('roles', 'delete'), async (c) => {
-    const storeMember = c.get('storeMember')
-    const roleId = c.req.param('roleId')
-    if (!roleId) return c.json(
-        failureResponse(
-            'Missing role id!',
-            'MISSING_ID'
-        ),
-        { status: 400 }
-    )
+// storeRoleRoutes.delete('/:roleId', hasPermissionMiddleware('roles', 'delete'), async (c) => {
+//     const storeMember = c.get('storeMember')
+//     const roleId = c.req.param('roleId')
+//     if (!roleId) return c.json(
+//         failureResponse(
+//             'Missing role id!',
+//             'MISSING_ID'
+//         ),
+//         { status: 400 }
+//     )
 
 
-    const existRole = await db.query.storeRolesTable.findFirst({
-        where(storeRoleTable, { and, eq }) {
-            return and(
-                eq(storeRoleTable.id, roleId),
-                eq(storeRoleTable.storeId, storeMember.storeId),
-            )
-        },
-    })
+//     const existRole = await db.query.storeRolesTable.findFirst({
+//         where(storeRoleTable, { and, eq }) {
+//             return and(
+//                 eq(storeRoleTable.id, roleId),
+//                 eq(storeRoleTable.storeId, storeMember.storeId),
+//             )
+//         },
+//     })
 
-    if (!existRole) throw new AppError(
-        'Role not found',
-        404,
-        'NOT_FOUND'
-    )
+//     if (!existRole) throw new AppError(
+//         'Role not found',
+//         404,
+//         'NOT_FOUND'
+//     )
 
-    const updatedRole = await db.delete(storeRolesTable)
-        .where(
-            and(
-                eq(storeRolesTable.id, existRole.id),
-                eq(storeRolesTable.storeId, storeMember.storeId)
-            )
-        )
-        .returning()
+//     if (existRole.name.toLowerCase() === 'owner') throw new AppError('Owner role can not delete', 400, 'BAD_REQUEST')
 
-    return c.json(
-        successResponse(
-            'Role updated successfully',
-            updatedRole,
-        ),
-        { status: 200 }
-    )
-})
+//     const updatedRole = await db.delete(storeRolesTable)
+//         .where(
+//             and(
+//                 eq(storeRolesTable.id, existRole.id),
+//                 eq(storeRolesTable.storeId, storeMember.storeId)
+//             )
+//         )
+//         .returning()
+
+//     return c.json(
+//         successResponse(
+//             'Role updated successfully',
+//             updatedRole,
+//         ),
+//         { status: 200 }
+//     )
+// })
 
 export default storeRoleRoutes
