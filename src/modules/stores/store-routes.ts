@@ -6,19 +6,26 @@ import { generateSlug } from "@/libs/utils.js";
 import { storesTable } from "@/drizzle/schema/stores-table.js";
 import { storeMembersTable } from "@/drizzle/schema/store-members-table.js";
 import { storeRolesTable } from "@/drizzle/schema/store-role-table.js";
-import type { storePermissionsTable } from "@/drizzle/schema/store-permission-table.js";
 import { storeRolePermissionsTable } from "@/drizzle/schema/store-role-permission-table.js";
-import { DEFAULT_STAFF_PERMISSIONS, STORE_PERMISSIONS } from "./store-constants.js";
+import { DEFAULT_STAFF_PERMISSIONS } from "./store-constants.js";
 import { successResponse } from "@/libs/api-response.js";
 import storeMemberRoutes from "./store-members/store-members-routes.js";
 import storeRoleRoutes from "./store-roles/store-roles-routes.js";
 import storeCategoryRoute from "./store-categories/store-categories-routes.js";
+import storeUnitsRoute from "./store-units/store-units-routes.js";
+import storeSuppliersRoute from "./store-suppliers/store-suppliers-routes.js";
+import storeCustomersRoute from "./store-customers/store-customers-routes.js";
+import storeProductsRoute from "./store-products/store-products-routes.js";
 
 const storeRoutes = new Hono()
 
 storeRoutes.route('/:storeId/members', storeMemberRoutes)
 storeRoutes.route('/:storeId/roles', storeRoleRoutes)
 storeRoutes.route('/:storeId/categories', storeCategoryRoute)
+storeRoutes.route('/:storeId/units', storeUnitsRoute)
+storeRoutes.route('/:storeId/suppliers', storeSuppliersRoute)
+storeRoutes.route('/:storeId/customers', storeCustomersRoute)
+storeRoutes.route('/:storeId/products', storeProductsRoute)
 
 storeRoutes.post('/', async (c) => {
     const authUser = c.get('authUser')
