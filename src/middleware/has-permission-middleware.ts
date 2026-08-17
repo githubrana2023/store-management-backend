@@ -70,7 +70,7 @@ export const hasPermissionMiddleware = (resource: string, action: string) => cre
             }
         )
 
-        if (!storePermission) throw new AppError(`you're not allow to perform ${action} ${resource} action`, 403, 'FORBIDDEN_ACCESS')
+        if (!storePermission) throw new AppError(`you're not allow to perform "${action} ${resource}" action`, 403, 'FORBIDDEN_ACCESS')
 
         return await next()
     }

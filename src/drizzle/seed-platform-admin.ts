@@ -17,7 +17,7 @@ const seedPermission = async () => {
                 )
             }
         })
-        if (existPermission) return
+        if (existPermission) continue
         await db.insert(storePermissionsTable).values(permission)
     }
     console.log('Seeding Permission Completed...')

@@ -1,7 +1,7 @@
 import { pgTable, uuid, text, timestamp, uniqueIndex, index, boolean } from "drizzle-orm/pg-core";
 import { storesTable } from "./stores-table.js";
 
-export const categoriesTable = pgTable(
+export const storeCategoriesTable = pgTable(
     "categories",
     {
         id: uuid("id")

@@ -32,6 +32,27 @@ export const STORE_PERMISSIONS = [
     },
 
     {
+        resource: "categories",
+        action: "view",
+        description: "View store categories",
+    },
+    {
+        resource: "categories",
+        action: "create",
+        description: "Add categories to the store",
+    },
+    {
+        resource: "categories",
+        action: "update",
+        description: "Update store member information",
+    },
+    {
+        resource: "categories",
+        action: "delete",
+        description: "Remove categories from the store",
+    },
+
+    {
         resource: "roles",
         action: "view",
         description: "View store roles",

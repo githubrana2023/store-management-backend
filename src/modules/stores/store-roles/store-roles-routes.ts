@@ -8,6 +8,7 @@ import { storeRoleCreateSchema } from "./store-roles-create-schema.js";
 import { AppError } from "@/libs/app-error.js";
 import { storeRoleUpdateSchema } from "./store-role-update-schema.js";
 import { and, eq } from "drizzle-orm";
+import { storeRolePermissionsTable } from "@/drizzle/schema/store-role-permission-table.js";
 
 const storeRoleRoutes = new Hono()
 
@@ -31,7 +32,7 @@ storeRoleRoutes.post('/', hasPermissionMiddleware('roles', 'create'), async (c) 
         { status: 400 }
     )
 
-    const { name, description } = validation.data
+    const { name, description, actions = ['view'] } = validation.data
 
     const existRole = await db.query.storeRolesTable.findFirst({
         where(storeRoleTable, { and, eq, or }) {
@@ -49,19 +50,70 @@ storeRoleRoutes.post('/', hasPermissionMiddleware('roles', 'create'), async (c) 
         'ALREADY_EXIST'
     )
 
+    const storeOwnerRole = await db.query.storeRolesTable.findFirst({
+        where(storeRolestable, { and, eq }) {
+            return and(
+                eq(storeRolestable.name, 'OWNER'),
+                eq(storeRolestable.storeId, storeMember.storeId),
+                eq(storeRolestable.isSystem, true),
+            )
+        }
+    })
 
-    const [newRole] = await db.insert(storeRolesTable).values({
-        name: name.toUpperCase(),
-        storeId: storeMember.storeId,
-        description,
-        isSystem: false
-    }).returning()
+    if (!storeOwnerRole) throw new AppError('Onwer role not found', 404, 'NOT_FOUND')
+
+
+    const storeOwner = await db.query.storeMembersTable.findFirst({
+        where(storeMembersTable, { and, eq }) {
+            return and(
+                eq(storeMembersTable.storeId, storeMember.storeId),
+                eq(storeMembersTable.roleId, storeOwnerRole.id),
+            )
+        }
+    })
+
+    if (!storeOwner) throw new AppError('Store owner not found', 404, 'NOT_FOUND')
+
+    const result = await db.transaction(
+        async (tx) => {
+            const [newRole] = await tx.insert(storeRolesTable).values({
+                name: name.toUpperCase(),
+                storeId: storeMember.storeId,
+                description,
+                isSystem: false
+            }).returning()
+
+            if (!newRole) throw new Error('Failed to create store role')
+            const permissions = await db.query.storePermissionsTable.findMany(
+                {
+                    where(storePermissionsTable, { eq, or }) {
+                        return or(
+                            ...actions.map(action=>eq(storePermissionsTable.action,action))                            
+                        )
+                    },
+                    columns: { id: true }
+                }
+            )
+
+            await tx.insert(storeRolePermissionsTable).values(
+                permissions.map(({ id: permissionId }) => ({
+                    permissionId,
+                    roleId: newRole.id
+                }))
+            )
+
+            return newRole
+        }
+    )
+
+
+
     return c.json(
         successResponse(
             'Role created successfully',
             {
                 storeId: storeMember.storeId,
-                newRole
+                result
             },
         ),
         { status: 201 }

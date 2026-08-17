@@ -2,7 +2,7 @@ import { pgTable, uuid, text, timestamp, uniqueIndex, index, boolean, numeric } 
 import { storesTable } from "./stores-table.js";
 
 
-export const customers = pgTable(
+export const storeCustomersTable = pgTable(
     "customers",
     {
         id: uuid("id")

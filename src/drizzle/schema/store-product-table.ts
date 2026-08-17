@@ -1,10 +1,9 @@
 import { pgTable, uuid, text, timestamp, uniqueIndex, index, boolean, numeric } from "drizzle-orm/pg-core";
 import { storesTable } from "./stores-table.js";
-import { categoriesTable } from "./store-category-table.js";
-import { unitsTable } from "./store-unit-table.js";
-import { suppliersTable } from "./store-supplier-table.js";
+import { storeCategoriesTable } from "./store-category-table.js";
+import { storeUnitsTable } from "./store-unit-table.js";
 
-export const products = pgTable(
+export const storeProductsTables = pgTable(
     "products",
     {
         id: uuid("id")
@@ -19,14 +18,14 @@ export const products = pgTable(
             }),
 
         categoryId: uuid("category_id")
-            .references(() => categoriesTable.id, {
+            .references(() => storeCategoriesTable.id, {
                 onDelete: "set null",
                 onUpdate: "cascade",
             }),
 
         unitId: uuid("unit_id")
             .notNull()
-            .references(() => unitsTable.id, {
+            .references(() => storeUnitsTable.id, {
                 onDelete: "restrict",
                 onUpdate: "cascade",
             }),
