@@ -9,21 +9,22 @@ import { successResponse } from "@/libs/api-response.js";
 import { and, eq } from "drizzle-orm";
 import { storeMemberUpdateSchema } from "./store-member-update-schema.js";
 import { storeRolesTable } from "@/drizzle/schema/store-role-table.js";
+import { PERMISSION_MAP } from "@/constants/persmission.js";
 
 const storeMemberRoutes = new Hono()
 
 storeMemberRoutes.use('*', storeMemberMiddleware)
 
 
-storeMemberRoutes.get('/', hasPermissionMiddleware('members', 'view'), async (c) => {
+storeMemberRoutes.get('/', hasPermissionMiddleware(PERMISSION_MAP.view.members), async (c) => {
     return c.json({ msg: 'nested members routes' }, { status: 200 })
 })
 
-storeMemberRoutes.get('/:memberId', hasPermissionMiddleware('members', 'view'), async (c) => {
+storeMemberRoutes.get('/:memberId', hasPermissionMiddleware(PERMISSION_MAP.view.members), async (c) => {
     return c.json({ msg: 'nested members routes' }, { status: 200 })
 })
 
-storeMemberRoutes.post('/', hasPermissionMiddleware('members', 'create'), async (c) => {
+storeMemberRoutes.post('/', hasPermissionMiddleware(PERMISSION_MAP.create.members), async (c) => {
     const body = await c.req.json()
     const storeMember = c.get('storeMember')
     const validation = storeMemberCreateSchema.safeParse(body)
@@ -81,7 +82,7 @@ storeMemberRoutes.post('/', hasPermissionMiddleware('members', 'create'), async 
 })
 
 
-storeMemberRoutes.patch('/:memberId', hasPermissionMiddleware('members', 'update'), async (c) => {
+storeMemberRoutes.patch('/:memberId', hasPermissionMiddleware(PERMISSION_MAP.update.members), async (c) => {
     const body = await c.req.json()
     const validation = storeMemberUpdateSchema.safeParse(body)
     if (!validation.success) throw validation.error
@@ -141,7 +142,7 @@ storeMemberRoutes.patch('/:memberId', hasPermissionMiddleware('members', 'update
     )
 })
 
-storeMemberRoutes.delete('/:memberId', hasPermissionMiddleware('members', 'delete'), async (c) => {
+storeMemberRoutes.delete('/:memberId', hasPermissionMiddleware(PERMISSION_MAP.delete.members), async (c) => {
     const storeMember = c.get('storeMember')
     const memberId = c.req.param('memberId')
     if (!memberId) throw new AppError('Missing member id', 400, 'MISSING_MEMBER_ID')

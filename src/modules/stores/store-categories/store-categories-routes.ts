@@ -8,12 +8,13 @@ import { storeCategoriesTable } from "@/drizzle/schema/store-category-table.js";
 import { AppError } from "@/libs/app-error.js";
 import { storeCategoryUpdateSchema } from "./store-categories-update-schema.js";
 import { and, eq } from "drizzle-orm";
+import { PERMISSION_MAP } from "@/constants/persmission.js";
 
 const storeCategoryRoute = new Hono()
 
 storeCategoryRoute.use('*', storeMemberMiddleware)
 
-storeCategoryRoute.get('/', hasPermissionMiddleware('categories', 'view'), async (c) => {
+storeCategoryRoute.get('/', hasPermissionMiddleware(PERMISSION_MAP.view.categories), async (c) => {
     const storeMember = c.get('storeMember')
     const categories = await db.query.storeCategoriesTable.findMany({
         where(storeCategoriesTable, { and, eq }) {
@@ -32,7 +33,7 @@ storeCategoryRoute.get('/', hasPermissionMiddleware('categories', 'view'), async
     )
 })
 
-storeCategoryRoute.post('/', hasPermissionMiddleware('categories', 'create'), async (c) => {
+storeCategoryRoute.post('/', hasPermissionMiddleware(PERMISSION_MAP.create.categories), async (c) => {
     const storeMember = c.get('storeMember')
     const body = await c.req.json()
     const validation = storeCategoryCreateSchema.safeParse(body)
@@ -67,7 +68,7 @@ storeCategoryRoute.post('/', hasPermissionMiddleware('categories', 'create'), as
     )
 })
 
-storeCategoryRoute.patch('/:categoryId', hasPermissionMiddleware('categories', 'update'), async (c) => {
+storeCategoryRoute.patch('/:categoryId', hasPermissionMiddleware(PERMISSION_MAP.update.categories), async (c) => {
     const storeMember = c.get('storeMember')
     const categoryId = c.req.param('categoryId')
     if (!categoryId) throw new AppError('Missing category Id', 400, 'MISSING_CATEGORY_ID')
@@ -131,7 +132,7 @@ storeCategoryRoute.patch('/:categoryId', hasPermissionMiddleware('categories', '
     )
 })
 
-storeCategoryRoute.delete('/:categoryId', hasPermissionMiddleware('categories', 'delete'), async (c) => {
+storeCategoryRoute.delete('/:categoryId', hasPermissionMiddleware(PERMISSION_MAP.delete.categories), async (c) => {
     const storeMember = c.get('storeMember')
     const categoryId = c.req.param('categoryId')
     if (!categoryId) throw new AppError('Missing category Id', 400, 'MISSING_CATEGORY_ID')

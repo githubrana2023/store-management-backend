@@ -9,6 +9,7 @@ import { AppError } from "@/libs/app-error.js";
 import { storeRoleUpdateSchema } from "./store-role-update-schema.js";
 import { and, eq } from "drizzle-orm";
 import { storeRolePermissionsTable } from "@/drizzle/schema/store-role-permission-table.js";
+import { PERMISSION_MAP } from "@/constants/persmission.js";
 
 const storeRoleRoutes = new Hono()
 
@@ -20,7 +21,7 @@ storeRoleRoutes.use('*', storeMemberMiddleware)
  * CREATE ROLE UNDER STORE 
  * --------------------------------------------------------------------------------------
  */
-storeRoleRoutes.post('/', hasPermissionMiddleware('roles', 'create'), async (c) => {
+storeRoleRoutes.post('/', hasPermissionMiddleware(PERMISSION_MAP.view.roles), async (c) => {
     const storeMember = c.get('storeMember')
     const body = await c.req.json()
     const validation = storeRoleCreateSchema.safeParse(body)
@@ -88,7 +89,7 @@ storeRoleRoutes.post('/', hasPermissionMiddleware('roles', 'create'), async (c) 
                 {
                     where(storePermissionsTable, { eq, or }) {
                         return or(
-                            ...actions.map(action=>eq(storePermissionsTable.action,action))                            
+                            ...actions.map(action => eq(storePermissionsTable.action, action))
                         )
                     },
                     columns: { id: true }
@@ -128,7 +129,7 @@ storeRoleRoutes.post('/', hasPermissionMiddleware('roles', 'create'), async (c) 
  * --------------------------------------------------------------------------------------
  */
 
-storeRoleRoutes.get('/:roleId', hasPermissionMiddleware('roles', 'view'), async (c) => {
+storeRoleRoutes.get('/:roleId', hasPermissionMiddleware(PERMISSION_MAP.view.roles), async (c) => {
     const storeMember = c.get('storeMember')
     const roleId = c.req.param('roleId')
     if (!roleId) return c.json(
@@ -171,7 +172,7 @@ storeRoleRoutes.get('/:roleId', hasPermissionMiddleware('roles', 'view'), async 
  * --------------------------------------------------------------------------------------
  */
 
-storeRoleRoutes.patch('/:roleId', hasPermissionMiddleware('roles', 'update'), async (c) => {
+storeRoleRoutes.patch('/:roleId', hasPermissionMiddleware(PERMISSION_MAP.update.roles), async (c) => {
     const storeMember = c.get('storeMember')
     const roleId = c.req.param('roleId')
     const body = await c.req.json()
@@ -249,7 +250,7 @@ storeRoleRoutes.patch('/:roleId', hasPermissionMiddleware('roles', 'update'), as
  * --------------------------------------------------------------------------------------
  */
 
-// storeRoleRoutes.delete('/:roleId', hasPermissionMiddleware('roles', 'delete'), async (c) => {
+// storeRoleRoutes.delete('/:roleId', hasPermissionMiddleware(PERMISSION_MAP.delete.roles), async (c) => {
 //     const storeMember = c.get('storeMember')
 //     const roleId = c.req.param('roleId')
 //     if (!roleId) return c.json(

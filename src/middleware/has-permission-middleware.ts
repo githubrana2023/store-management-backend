@@ -1,5 +1,7 @@
+import { PERMISSION_SPLITTER } from "@/constants/persmission.js";
 import { db } from "@/drizzle/db.js";
 import { AppError } from "@/libs/app-error.js";
+import type { PermissionValue } from "@/types/permission-type.js";
 import { createMiddleware } from "hono/factory";
 
 /**
@@ -20,11 +22,13 @@ import { createMiddleware } from "hono/factory";
  *
  * @returns Middleware that calls `next()` when the user is authorized.
  */
-export const hasPermissionMiddleware = (resource: string, action: string) => createMiddleware(
+export const hasPermissionMiddleware = (permissionValue: PermissionValue) => createMiddleware(
     async (c, next) => {
         const authUser = c.get('authUser')
         const storeId = c.req.param('storeId')
         const storeMember = c.get('storeMember')
+
+        const [resource, action] = permissionValue.split(PERMISSION_SPLITTER)
 
         if (!storeId) throw new AppError('Missing store id', 400, 'MISSING_STORE_ID')
         if (!authUser) throw new AppError('Unauthenticated!', 401, 'UNAUTHENTICATED')
